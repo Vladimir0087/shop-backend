@@ -6,6 +6,6 @@ export const getProductsList = async () => {
     headers: {
       'Access-Control-Allow-Origin': '*'
     },
-    body: JSON.stringify(products, null, 2),
+    body: JSON.stringify(products, null, 2)
   };
 };
