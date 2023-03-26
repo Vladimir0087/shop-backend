@@ -7,7 +7,13 @@ export const getProductsList = {
       http: {
         method: 'get',
         path: 'products',
-        cors: true
+        cors: true,
+        responses: {
+          200: {
+            description: 'succescful API response',
+            bodyType: 'Products'
+          }
+        }
       },
     },
   ],

@@ -5,9 +5,11 @@ import { getProductsList, getProductsById } from '@functions';
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '3',
-  plugins: ['serverless-esbuild'],
+  plugins: ['serverless-auto-swagger','serverless-esbuild', 'serverless-offline'],
   provider: {
     name: 'aws',
+    region: 'us-east-1',
+    stage: 'dev',
     runtime: 'nodejs14.x',
     apiGateway: {
       minimumCompressionSize: 1024,
@@ -32,6 +34,11 @@ const serverlessConfiguration: AWS = {
       platform: 'node',
       concurrency: 10,
     },
+    autoswagger: {
+      host: 'g3zqd6y4k0.execute-api.us-east-1.amazonaws.com',
+      useStage: true,
+      basePath: '/dev'
+    }
   },
 };
 
