@@ -29,11 +29,6 @@ export const getProductsById = async (event) => {
         },
         body: JSON.stringify({message: error.message}, null, 2)
       }
-    } else {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({message: 'Something going wrong'})
-    }
     }
   }
 };
