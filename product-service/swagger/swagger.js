@@ -99,5 +99,8 @@
   },
   "securityDefinitions": {},
   "basePath": "/dev",
-  "host": "g3zqd6y4k0.execute-api.us-east-1.amazonaws.com"
+  "host": "g3zqd6y4k0.execute-api.us-east-1.amazonaws.com",
+  "schemes": [
+    "https"
+  ]
 };

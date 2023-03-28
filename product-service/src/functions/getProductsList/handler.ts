@@ -1,6 +1,8 @@
+import { APIGatewayProxyResult } from 'aws-lambda';
+
 import { products } from "./../../mocks/data";
 
-export const getProductsList = async () => {
+export const getProductsList = async () : Promise<APIGatewayProxyResult> => {
   return {
     statusCode: 200,
     headers: {

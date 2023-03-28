@@ -37,7 +37,8 @@ const serverlessConfiguration: AWS = {
     autoswagger: {
       host: 'g3zqd6y4k0.execute-api.us-east-1.amazonaws.com',
       useStage: true,
-      basePath: '/dev'
+      basePath: '/dev',
+      schemes: ['https']
     }
   },
 };

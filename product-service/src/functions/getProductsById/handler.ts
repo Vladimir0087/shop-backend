@@ -1,6 +1,9 @@
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { Product } from 'src/types/api-types';
+
 import { products } from "../../mocks/data";
 
-const getOneProductById = (productId) => {
+const getOneProductById = (productId: string): Product => {
   const product = products.find((prod) => prod.id === productId);
   if (product) {
     return product
@@ -9,7 +12,7 @@ const getOneProductById = (productId) => {
   }
 };
 
-export const getProductsById = async (event) => {
+export const getProductsById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const { productId } = event.pathParameters;
   try {
     const product = getOneProductById(productId);
