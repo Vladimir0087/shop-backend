@@ -4,7 +4,7 @@
   "description": "Serverless for application",
   "main": "serverless.ts",
   "scripts": {
-    "test": "jest"
+    "putItems": "ts-node ./src/scripts/putItemsToDynamoDB"
   },
   "engines": {
     "node": ">=14.15.0"
