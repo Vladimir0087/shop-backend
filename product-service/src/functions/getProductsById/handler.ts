@@ -1,21 +1,37 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { Product } from 'src/types/api-types';
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-import { products } from "../../mocks/data";
+import { client } from '../../utils/client';
 
-const getOneProductById = (productId: string): Product => {
-  const product = products.find((prod) => prod.id === productId);
-  if (product) {
-    return product
-  } else {
-    throw new Error('Product not found in the list of products');
-  }
+const getItem = async (dataBaseName: string, id: string) => {
+
+  const params = {
+    TableName: dataBaseName,
+    Key: marshall({ id }),
+  };
+  const { Item } = await client.send(new GetItemCommand(params));
+  return Item ? unmarshall(Item) : null;
 };
 
 export const getProductsById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const { productId } = event.pathParameters;
   try {
-    const product = getOneProductById(productId);
+    console.log('getProductsById Lambda triggered, params: ', event.pathParameters);
+    const { productId } = event.pathParameters;
+    const product = await getItem(process.env.PRODUCTS_DYNAMODB_NAME, productId);
+    const stock = await getItem(process.env.STOCKS_DYNAMODB_NAME, productId);
+
+    if (!product || !stock) return {
+      statusCode: 404,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({message: 'Product not found'}, null, 2)
+    };
+
+    product.count = stock.count;
     return {
       statusCode: 200,
       headers: {
@@ -23,15 +39,15 @@ export const getProductsById = async (event: APIGatewayProxyEvent): Promise<APIG
       },
       body: JSON.stringify(product, null, 2)
     };
+
   } catch (error) {
-    if (error.message === 'Product not found in the list of products') {
-      return {
-        statusCode: 404,
-        headers: {
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify({message: error.message}, null, 2)
-      }
+
+    return {
+      statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({message: error.message}, null, 2)
     }
   }
 };
