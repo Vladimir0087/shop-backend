@@ -29,9 +29,11 @@ const serverlessConfiguration: AWS = {
           {
             Effect: 'Allow',
             Action: ['dynamodb:*'],
+            // Action: ['dynamodb:*', 'rds:*'],
             Resource: [
               process.env.ARN_PRODUCTS_DYNAMODB,
               process.env.ARN_STOCKS_DYNAMODB,
+              // process.env.ARN_RDS_TABLE,
             ],
           },
         ],
@@ -81,6 +83,22 @@ const serverlessConfiguration: AWS = {
   //           ReadCapacityUnits: "1",
   //           WriteCapacityUnits: "1",
   //         },
+  //       },
+  //     }
+  //   }
+  // }
+  // resources: {
+  //   Resources: {
+  //     RDSMyProductsTable: {
+  //       Type: "AWS::RDS::DBInstance",
+  //       Properties: {
+  //         AllocatedStorage : "5",
+  //         DBInstanceClass : "db.t3.micro",
+  //         DBName: "myNewTestSql",
+  //         Engine : "mysql",
+  //         EngineVersion : "8.0.25",
+  //         MasterUsername : process.env.RDS_USER_NAME,
+  //         MasterUserPassword : process.env.RDS_USER_Password,
   //       },
   //     }
   //   }
