@@ -1,8 +1,9 @@
 export interface Product {
-  description: string;
   id: string;
-  price: number;
   title: string;
+  description: string;
+  price: number;
+  count: number;
 }
 
 export type Products = Product[];

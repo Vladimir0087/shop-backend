@@ -20,9 +20,29 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "succescful API response",
+            "description": "getProductsList succescful API response",
             "schema": {
               "$ref": "#/definitions/Products"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "createProduct",
+        "description": "",
+        "operationId": "createProduct.post.products",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "createProduct succescful API response",
+            "schema": {
+              "$ref": "#/definitions/Product"
             }
           }
         }
@@ -49,7 +69,7 @@
         ],
         "responses": {
           "200": {
-            "description": "succescful API response",
+            "description": "getProductsById succescful API response",
             "schema": {
               "$ref": "#/definitions/Product"
             }
@@ -61,28 +81,33 @@
   "definitions": {
     "Product": {
       "properties": {
-        "description": {
-          "title": "Product.description",
-          "type": "string"
-        },
         "id": {
           "title": "Product.id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Product.title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Product.description",
           "type": "string"
         },
         "price": {
           "title": "Product.price",
           "type": "number"
         },
-        "title": {
-          "title": "Product.title",
-          "type": "string"
+        "count": {
+          "title": "Product.count",
+          "type": "number"
         }
       },
       "required": [
-        "description",
         "id",
+        "title",
+        "description",
         "price",
-        "title"
+        "count"
       ],
       "additionalProperties": false,
       "title": "Product",
