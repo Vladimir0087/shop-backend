@@ -22,6 +22,7 @@ describe('importProductsFile hanler', () => {
     });
     expect(PutObjectCommand).toHaveBeenCalledWith({
       Bucket: process.env.S3_BUCKET_NAME,
+      ContentType: "text/csv",
       Key: `uploaded/${mockEvent.queryStringParameters.name}`,
     });
     expect(result.body).toEqual(mockedSignedUrl);
