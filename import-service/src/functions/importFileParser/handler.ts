@@ -3,14 +3,16 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import { Readable } from 'stream';
 import csv from 'csv-parser';
 import * as dotenv from 'dotenv';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 dotenv.config();
 
 export const importFileParser = async (event) : Promise<APIGatewayProxyResult> => {
   try {
     const records = event.Records;
-    console.log('importFileParser Lambda triggered, records:', records);
+    console.log('importFileParser Lambda triggered');
     const bucketName = process.env.S3_BUCKET_NAME;
     const client = new S3Client({ region: 'us-east-1' });
+    const sqsClient = new SQSClient({ region: 'us-east-1'});
 
     for (const record of records) {
       const objectName = record.s3.object.key;
@@ -18,14 +20,16 @@ export const importFileParser = async (event) : Promise<APIGatewayProxyResult> =
       const newObjectPath = objectName.replace('uploaded', 'parsed');
       const command = { Bucket: bucketName, Key: objectName };
       const copyCommand = { Bucket: bucketName, CopySource: pathToObject, Key: newObjectPath };
-      const results = [];
       const readableStream = (await client.send(new GetObjectCommand(command))).Body as Readable;
       readableStream
         .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', () => {
-          console.log('results: ', results);
-        });
+        .on('data', (data) => {
+          sqsClient.send(
+            new SendMessageCommand({
+              MessageBody: JSON.stringify(data),
+              QueueUrl: process.env.SQS_URL,
+            })
+        )});
       await client.send(new CopyObjectCommand(copyCommand));
       await client.send(new DeleteObjectCommand(command));
     };
@@ -35,7 +39,7 @@ export const importFileParser = async (event) : Promise<APIGatewayProxyResult> =
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({message: 'incoming data parsed and moved to parsed folder'}, null, 2),
+      body: JSON.stringify({message: 'incoming data parsed and moved to SQS'}, null, 2),
     }
 
   } catch (error) {
