@@ -65,15 +65,6 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
       );
     }
 
-    // console.log('prepare to send email with createdProducts: ', createdProducts);
-    // await snsClient.send(
-    //   new PublishCommand({
-    //     Subject: 'New product created!',
-    //     Message: JSON.stringify(createdProducts),
-    //     TopicArn: process.env.SNS_ARN,
-    //   })
-    // );
-
   } catch (error) {
 
 
