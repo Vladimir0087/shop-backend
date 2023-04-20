@@ -11,7 +11,6 @@ jest.mock('@aws-sdk/s3-request-presigner');
 describe('importProductsFile hanler', () => {
   const mockEvent = { queryStringParameters: { name: 'document.csv'}};
   const mockedSignedUrl = 'mockedSignedUrl';
-  // (getSignedUrl as jest.Mock).mockResolvedValue(mockedSignedUrl);
   
   it('should return correct data', async () => {
     (getSignedUrl as jest.Mock).mockResolvedValue(mockedSignedUrl);

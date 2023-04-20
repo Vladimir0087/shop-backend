@@ -15,7 +15,9 @@ All the requirements have been done (100%)
   
 ## functions:
   getProductsList: product-service-dev-getProductsList  
-  getProductsById: product-service-dev-getProductsById  
+  getProductsById: product-service-dev-getProductsById 
+  createProduct: product-service-dev-createProduct
+  catalogBatchProcess: product-service-dev-catalogBatchProcess 
 
   importProductsFile: import-service-dev-importProductsFile  
   importFileParser: import-service-dev-importFileParser  

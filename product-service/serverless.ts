@@ -2,7 +2,7 @@ import type { AWS } from '@serverless/typescript';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { getProductsList, getProductsById, createProduct } from '@functions';
+import { getProductsList, getProductsById, createProduct, catalogBatchProcess } from '@functions';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
@@ -22,6 +22,8 @@ const serverlessConfiguration: AWS = {
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       PRODUCTS_DYNAMODB_NAME: process.env.PRODUCTS_DYNAMODB_NAME,
       STOCKS_DYNAMODB_NAME: process.env.STOCKS_DYNAMODB_NAME,
+      SQS_URL: { Ref: 'SQSQueue' },
+      SNS_ARN: { Ref: 'SNSTopic' },
     },
     iam: {
       role: {
@@ -29,19 +31,65 @@ const serverlessConfiguration: AWS = {
           {
             Effect: 'Allow',
             Action: ['dynamodb:*'],
-            // Action: ['dynamodb:*', 'rds:*'],
             Resource: [
               process.env.ARN_PRODUCTS_DYNAMODB,
               process.env.ARN_STOCKS_DYNAMODB,
-              // process.env.ARN_RDS_TABLE,
             ],
           },
+          {
+            Effect: "Allow",
+            Action: ["sqs:*"],
+            Resource: {
+              "Fn::GetAtt": ["SQSQueue", "Arn"]
+            }
+          },
+          {
+            Effect: "Allow",
+            Action: ["sns:*"],
+            Resource: {
+              Ref: 'SNSTopic'
+            }
+          }
         ],
       },
    },
   },
+  resources: {
+    Resources: {
+      SQSQueue: {
+        Type: 'AWS::SQS::Queue',
+        Properties: {
+          QueueName: 'catalogItemsQueue',
+        }
+      },
+      SNSTopic: {
+        Type: 'AWS::SNS::Topic',
+        Properties: {
+          TopicName: 'createProductTopic'
+        }
+      },
+      createProductSNSSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: process.env.EMAIL,
+          Protocol: 'email',
+          TopicArn: { Ref: 'SNSTopic' },
+        }
+      },
+      MyNewFilteredProductsSNSSubscription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: process.env.ADDITIONAL_EMAIL,
+          Protocol: 'email',
+          TopicArn: { Ref: 'SNSTopic' },
+          FilterPolicyScope: 'MessageBody',
+          FilterPolicy: {"price":[{"numeric":[">=",105]}]}
+        }
+      },
+    }
+  },
   // import the function via paths
-  functions: { getProductsList, getProductsById, createProduct },
+  functions: { getProductsList, getProductsById, createProduct, catalogBatchProcess },
   package: { individually: true },
   custom: {
     esbuild: {
@@ -61,48 +109,6 @@ const serverlessConfiguration: AWS = {
       schemes: ['https']
     }
   },
-  // resources: {
-  //   Resources: {
-  //     ProductsTable: {
-  //       Type: "AWS::DynamoDB::Table",
-  //       Properties: {
-  //         TableName: "${self:provider.environment.PRODUCTS_DYNAMODB_TABLE_NAME}",
-  //         AttributeDefinitions: [
-  //           { AttributeName: "id", AttributeType: "S" },
-  //           { AttributeName: "title", AttributeType: "S" },
-  //           { AttributeName: "description", AttributeType: "S" },
-  //           { AttributeName: "price", AttributeType: "N" },
-  //         ],
-  //         KeySchema: [
-  //           { AttributeName: "id", KeyType: "HASH" },
-  //           { AttributeName: "title", KeyType: "RANGE" },
-  //           { AttributeName: "description", KeyType: "RANGE" },
-  //           { AttributeName: "price", KeyType: "RANGE" },
-  //         ],
-  //         ProvisionedThroughput: {
-  //           ReadCapacityUnits: "1",
-  //           WriteCapacityUnits: "1",
-  //         },
-  //       },
-  //     }
-  //   }
-  // }
-  // resources: {
-  //   Resources: {
-  //     RDSMyProductsTable: {
-  //       Type: "AWS::RDS::DBInstance",
-  //       Properties: {
-  //         AllocatedStorage : "5",
-  //         DBInstanceClass : "db.t3.micro",
-  //         DBName: "myNewTestSql",
-  //         Engine : "mysql",
-  //         EngineVersion : "8.0.25",
-  //         MasterUsername : process.env.RDS_USER_NAME,
-  //         MasterUserPassword : process.env.RDS_USER_Password,
-  //       },
-  //     }
-  //   }
-  // }
 };
 
 module.exports = serverlessConfiguration;
